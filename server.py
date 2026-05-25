@@ -2,7 +2,9 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+import json
 import fal_client
+import anthropic
 
 load_dotenv()
 
@@ -11,26 +13,19 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=BASE_DIR)
 CORS(app)
 
-# Fantasy/creative occupations mapped to real-world equivalents
-OCCUPATION_MAP = {
-    "mermaid":     "marine biologist in a wetsuit",
-    "merman":      "marine biologist in a wetsuit",
-    "fairy":       "nature conservationist in green outdoor gear",
-    "wizard":      "science professor in academic robes",
-    "witch":       "chemistry teacher in a lab coat",
-    "superhero":   "search and rescue worker in a uniform",
-    "princess":    "diplomat in formal attire",
-    "prince":      "diplomat in formal attire",
-    "ninja":       "martial arts instructor in a gi",
-    "vampire":     "haematologist in a white lab coat",
-    "zombie":      "special effects makeup artist",
-    "pirate":      "ship captain in a naval uniform",
-}
+MODERATION_SYSTEM = """You are a content safety filter for a school career day app used by children aged 10–16.
 
-BLOCKED_WORDS = {
-    "stripper", "exotic dancer", "porn", "adult", "nude", "naked",
-    "playboy", "onlyfans", "escort",
-}
+A child has typed the career they want to be. Evaluate it and respond with JSON only.
+
+Rules — apply in order:
+1. BLOCK if the input is sexual, violent, drug-related, weapon-related, or otherwise clearly inappropriate for children. Respond: {"ok": false}
+2. SAFETY-GUARD if the career could plausibly produce revealing or sexualised imagery (e.g. swimsuit model, bikini model, exotic dancer, burlesque performer) → keep the career but append "in professional attire, fully clothed" to the occupation string.
+3. PASS everything else as-is — including fantasy / fictional roles like knight, wizard, witch, mermaid, superhero, pirate, ninja, vampire, fairy, dragon rider, etc. These are fun and intentional. Just clean up capitalisation and phrasing lightly.
+
+Respond with ONLY valid JSON, no extra text:
+{"ok": true, "occupation": "<occupation string>"}
+or
+{"ok": false}"""
 
 NEGATIVE_PROMPT = (
     "plain background, black background, grey background, white background, "
@@ -44,20 +39,25 @@ NEGATIVE_PROMPT = (
 )
 
 
-def sanitise(occupation: str) -> str:
-    clean = occupation.strip().lower()
+def sanitise(raw_occupation: str):
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        return raw_occupation.strip()
 
-    # Block explicitly inappropriate inputs
-    for word in BLOCKED_WORDS:
-        if word in clean:
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=150,
+            system=MODERATION_SYSTEM,
+            messages=[{"role": "user", "content": raw_occupation.strip()}],
+        )
+        result = json.loads(msg.content[0].text)
+        if result.get("ok") is False:
             return None
-
-    # Remap fantasy occupations to safe real-world equivalents
-    for key, replacement in OCCUPATION_MAP.items():
-        if key in clean:
-            return replacement
-
-    return occupation.strip()
+        return result.get("occupation", raw_occupation.strip())
+    except Exception:
+        return raw_occupation.strip()
 
 
 @app.route("/")
