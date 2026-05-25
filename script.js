@@ -156,9 +156,17 @@ async function capturePhoto() {
   await delay(70);
   flashEl.style.transition = 'opacity .6s ease';
   flashEl.style.opacity = '0';
-  // Draw frame
+  // Draw frame — center-crop to fill canvas (handles portrait mobile video)
   const ctx = snapCanvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, snapCanvas.width, snapCanvas.height);
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const cw = snapCanvas.width,  ch = snapCanvas.height;
+  const scale = Math.max(cw / vw, ch / vh);
+  const sw = cw / scale, sh = ch / scale;
+  const sx = (vw - sw) / 2,   sy = (vh - sh) / 2;
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.drawImage(video, sx, sy, sw, sh, -cw, 0, cw, ch);
+  ctx.restore();
   // Show thumbnail in loading panel
   document.getElementById('snap-thumb').src = snapCanvas.toDataURL('image/jpeg', .7);
   return snapCanvas.toDataURL('image/jpeg', .85).split(',')[1];
