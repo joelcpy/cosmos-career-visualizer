@@ -93,25 +93,37 @@ function startListening() {
   setBubble("I'm listening… what's your dream career?");
 
   let gotResult = false;
+
+  function showTextFallback() {
+    hideMic();
+    document.getElementById('text-fallback').style.display = 'block';
+    setBubble("Type your dream career below!");
+  }
+
+  // iOS doesn't auto-stop after silence — force fallback after 7 s
+  const listenTimeout = setTimeout(() => {
+    if (!gotResult) { try { recognition.stop(); } catch(e) {} showTextFallback(); }
+  }, 7000);
+
   try { recognition.abort(); } catch(e) {}
-  recognition.start();
+  try { recognition.start(); } catch(e) { clearTimeout(listenTimeout); showTextFallback(); return; }
 
   recognition.onresult = e => {
+    clearTimeout(listenTimeout);
     gotResult = true;
     hideMic();
     handleOccupation(extractOccupation(e.results[0][0].transcript));
   };
   recognition.onerror = () => {
+    clearTimeout(listenTimeout);
     hideMic();
     document.getElementById('text-fallback').style.display = 'block';
     setBubble("Mic didn't catch that — type below!");
   };
   recognition.onend = () => {
+    clearTimeout(listenTimeout);
     hideMic();
-    if (!gotResult) {
-      document.getElementById('text-fallback').style.display = 'block';
-      setBubble("Type your dream career below!");
-    }
+    if (!gotResult) showTextFallback();
   };
 }
 
