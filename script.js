@@ -1,4 +1,5 @@
 const API_BASE = '';
+let muted = false;
 
 // ══════════════════════════════════════════
 // STARFIELD
@@ -42,6 +43,7 @@ function setAvatarSpeed(speed) {
 
 function speak(text, onDone) {
   setBubble(text);
+  if (muted) { if (onDone) onDone(); return; }
   const u = new SpeechSynthesisUtterance(text);
   u.rate = 0.9; u.pitch = 1.2;
   const voices = speechSynthesis.getVoices();
@@ -323,15 +325,52 @@ async function start() {
   );
 }
 
-startWebcam();
-
 // After player is ready, re-enforce seamless looping on the internal lottie instance
 document.getElementById('avatar-lottie').addEventListener('ready', () => {
   const lottie = document.getElementById('avatar-lottie').getLottie();
   if (lottie) { lottie.loop = true; lottie.goToAndPlay(0, true); }
 });
 
-document.getElementById('start-btn').addEventListener('click', () => {
-  document.getElementById('start-overlay').style.display = 'none';
-  start();
+
+// ══════════════════════════════════════════
+// PASSWORD
+// ══════════════════════════════════════════
+async function submitPassword() {
+  const val = document.getElementById('password-input').value;
+  const err = document.getElementById('password-error');
+  const btn = document.getElementById('start-btn');
+  if (!val.trim()) return;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: val }),
+    });
+    if (res.ok) {
+      document.getElementById('start-overlay').style.display = 'none';
+      err.style.display = 'none';
+      startWebcam();
+      start();
+    } else {
+      err.style.display = 'block';
+      document.getElementById('password-input').value = '';
+      btn.disabled = false;
+    }
+  } catch {
+    err.textContent = 'Network error — try again';
+    err.style.display = 'block';
+    btn.disabled = false;
+  }
+}
+document.getElementById('start-btn').addEventListener('click', submitPassword);
+document.getElementById('password-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitPassword(); });
+
+// ══════════════════════════════════════════
+// MUTE
+// ══════════════════════════════════════════
+document.getElementById('mute-btn').addEventListener('click', () => {
+  muted = !muted;
+  document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+  if (muted) speechSynthesis.cancel();
 });

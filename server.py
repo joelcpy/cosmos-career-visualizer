@@ -80,6 +80,15 @@ def assets(filename):
     return send_from_directory(os.path.join(BASE_DIR, "assets"), filename)
 
 
+@app.route("/api/auth", methods=["POST"])
+def auth():
+    data = request.get_json()
+    correct = os.getenv("SITE_PASSWORD", "")
+    if correct and data.get("password") == correct:
+        return jsonify({"ok": True})
+    return jsonify({"ok": False}), 401
+
+
 @app.route("/api/generate", methods=["POST"])
 def generate():
     data = request.get_json()
