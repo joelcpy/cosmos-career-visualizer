@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Career Day ✨</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+
+<body class="min-h-screen text-white">
+
+  <!-- Floating orbs -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- Stars -->
+  <div id="stars" class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index:0"></div>
+
+  <!-- Confetti -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- ══ START OVERLAY ══ -->
+  <div id="start-overlay" class="fixed inset-0 flex flex-col items-center justify-center"
+       style="background:radial-gradient(ellipse at 50% 40%,#1a0a30 0%,#07071a 100%); z-index:50">
+    <p class="orbitron grad-text font-black tracking-widest mb-2" style="font-size:3.8rem">CAREER DAY</p>
+    <p class="text-purple-400 tracking-[.25em] uppercase text-sm mb-10">Discover Your Future · Powered by AI</p>
+    <div class="a-bob mb-8">
+      <lottie-player src="/assets/wizard.json" background="transparent" speed="1"
+        style="width:180px;height:180px" loop autoplay></lottie-player>
+    </div>
+    <button id="start-btn" class="glow-btn orbitron text-white font-black text-xl px-14 py-5 rounded-full tracking-widest uppercase">
+      Tap to Start 🚀
+    </button>
+  </div>
+
+  <!-- ══ COUNTDOWN OVERLAY ══ -->
+  <div id="countdown-screen" class="fixed inset-0 flex-col items-center justify-center" style="display:none; z-index:40">
+    <p class="orbitron text-purple-300 tracking-[.3em] uppercase text-xl mb-6">Get Ready!</p>
+    <div id="countdown-num" class="c-anim orbitron font-black text-white"
+         style="font-size:18rem; line-height:1; text-shadow:0 0 80px rgba(168,85,247,1),0 0 160px rgba(236,72,153,.7)">
+      3
+    </div>
+  </div>
+
+  <!-- ══ MAIN ══ -->
+  <div class="relative max-w-6xl mx-auto px-4 py-8" style="z-index:1">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="orbitron grad-text font-black mb-1" style="font-size:3rem; letter-spacing:.06em">CAREER DAY</h1>
+      <p class="text-purple-400 tracking-[.2em] uppercase text-xs">AI-Powered Career Visualiser</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+      <!-- ── LEFT: Avatar panel ── -->
+      <div class="glass p-8 flex flex-col items-center gap-7">
+
+        <div class="bubble w-full max-w-sm text-base leading-snug" id="speech-bubble">
+          <span id="bubble-text">Getting ready…</span>
+        </div>
+
+        <div class="a-bob">
+          <div class="avatar-orb">
+            <lottie-player id="avatar-lottie"
+              src="/assets/wizard.json"
+              background="transparent"
+              speed="1"
+              style="width:160px;height:160px"
+              loop autoplay>
+            </lottie-player>
+          </div>
+        </div>
+
+        <div class="min-h-[56px] flex items-center justify-center w-full">
+          <div id="mic-badge" style="display:none"
+               class="mic-pulse flex items-center gap-3 bg-red-500 px-6 py-3 rounded-full font-black text-lg shadow-xl">
+            <span class="text-2xl">🎤</span><span>Listening…</span>
+          </div>
+
+          <div id="text-fallback" style="display:none" class="w-full max-w-xs">
+            <p class="text-purple-400 text-xs text-center mb-2 tracking-wider uppercase">Type your answer</p>
+            <div class="flex gap-2">
+              <input id="text-input" type="text" placeholder="e.g. astronaut"
+                     class="flex-1 px-4 py-2 rounded-xl bg-white/8 border border-white/15 text-white
+                            placeholder-white/30 outline-none focus:border-purple-400 transition text-sm" />
+              <button onclick="submitTextInput()" class="glow-btn text-white font-black px-4 py-2 rounded-xl text-sm">Go!</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── RIGHT: Camera / Loading / Result ── -->
+      <div class="glass p-6 flex flex-col items-center justify-center gap-6 min-h-[480px]">
+
+        <!-- Camera -->
+        <div id="camera-container">
+          <div class="cam-wrap neon-purple rounded-2xl overflow-hidden">
+            <div class="corner-br"></div><div class="corner-bl"></div>
+            <div class="scan-line"></div>
+            <video id="webcam" autoplay playsinline width="420" height="315" class="block bg-black"></video>
+            <div id="flash-overlay" class="absolute inset-0 bg-white opacity-0 pointer-events-none rounded-2xl"></div>
+          </div>
+          <canvas id="snapshot" width="420" height="315" class="hidden"></canvas>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading-container" style="display:none" class="flex flex-col items-center gap-7 py-4 w-full">
+          <div class="flex items-center gap-8">
+            <div class="rounded-xl overflow-hidden flex-shrink-0"
+                 style="width:110px;height:83px;border:2px solid rgba(168,85,247,.5)">
+              <img id="snap-thumb" src="" alt="" style="width:100%;height:100%;object-fit:cover" />
+            </div>
+            <div class="flex flex-col items-center gap-4">
+              <div class="magic-portal"><span>✨</span></div>
+              <div class="helix"><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div>
+            <p class="orbitron text-white font-black text-lg text-center tracking-wider">Transforming Your Future</p>
+            <p class="text-purple-400 text-xs text-center tracking-widest mt-1">~20–30 seconds · please wait</p>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div id="result-container" style="display:none" class="flex flex-col items-center gap-5 w-full">
+          <div class="neon-gold rounded-2xl overflow-hidden flip-reveal" style="line-height:0">
+            <img id="result-image" src="" alt="Your career"
+                 style="display:block; width:420px; max-width:100%; object-fit:cover" />
+          </div>
+          <button onclick="resetApp()"
+                  class="glow-btn orbitron text-white font-black px-9 py-3 rounded-full text-sm tracking-widest uppercase">
+            Try Again 🔄
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Occupation badge -->
+    <div id="occupation-badge" style="display:none" class="text-center mt-8">
+      <div class="orbitron inline-block font-black text-xl px-10 py-4 rounded-full"
+           style="background:linear-gradient(135deg,#fbbf24,#f97316); color:#07071a;
+                  box-shadow:0 0 36px rgba(251,191,36,.55), 0 4px 20px rgba(0,0,0,.4)">
+        ⭐ Future <span id="occupation-label"></span> ⭐
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <script src="/script.js"></script>
+
+</body>
+</html>
