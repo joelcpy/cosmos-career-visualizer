@@ -27,7 +27,11 @@ const flashEl    = document.getElementById('flash-overlay');
 
 async function startWebcam() {
   try {
-    video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    video.srcObject = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user' },
+      audio: false,
+    });
+    await video.play();
   } catch {
     setBubble("Camera access needed — please allow and reload.");
   }
