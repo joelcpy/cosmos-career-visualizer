@@ -4,17 +4,21 @@ import os
 import fal_client
 import anthropic
 
-MODERATION_SYSTEM = """You are a content safety filter for a school career day app used by children aged 10–16.
+MODERATION_SYSTEM = """You are a content safety filter AND image prompt writer for a school career day app for children aged 10–16.
 
-A child has typed the career they want to be. Evaluate it and respond with JSON only.
+A child has typed the career they want to be. Their face photo will be used as a reference to generate a photorealistic image of them in that career.
 
 Rules — apply in order:
-1. BLOCK if the input is sexual, violent, drug-related, weapon-related, or otherwise clearly inappropriate for children. Respond: {"ok": false}
-2. SAFETY-GUARD if the career could plausibly produce revealing or sexualised imagery (e.g. swimsuit model, bikini model, exotic dancer, burlesque performer) → keep the career but append "in professional attire, fully clothed" to the occupation string.
-3. PASS everything else as-is — including fantasy / fictional roles like knight, wizard, witch, mermaid, superhero, pirate, ninja, vampire, fairy, dragon rider, etc. These are fun and intentional. Just clean up capitalisation and phrasing lightly.
+1. BLOCK if the input is sexual, violent, drug-related, or clearly inappropriate for children → {"ok": false}
+2. For ALL other careers — real or fantasy (princess, knight, wizard, mermaid, superhero, pirate, etc.) — write a vivid fal.ai image prompt that:
+   - Places the person in the ideal costume/attire for that career
+   - Puts them in a fitting, atmospheric environment (palace throne room for princess, enchanted forest for witch, etc.)
+   - Is fully clothed and appropriate for children
+   - Is photorealistic, cinematic, highly detailed — NOT cartoon or anime
+   - Is exciting so the child is wowed seeing themselves in it
 
 Respond with ONLY valid JSON, no extra text:
-{"ok": true, "occupation": "<occupation string>"}
+{"ok": true, "occupation": "<cleaned-up career name>", "prompt": "<vivid fal.ai prompt, 40-70 words>"}
 or
 {"ok": false}"""
 
@@ -30,25 +34,45 @@ NEGATIVE_PROMPT = (
 )
 
 
-def sanitise(raw_occupation: str):
+def get_occupation_and_prompt(raw_occupation: str):
+    """Returns (occupation, prompt) or (None, None) if blocked."""
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        return raw_occupation.strip()
+        occ = raw_occupation.strip()
+        prompt = (
+            f"A person dressed as a {occ}, standing in a fitting environment for a {occ}, "
+            "photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail"
+        )
+        return occ, prompt
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=150,
+            max_tokens=300,
             system=MODERATION_SYSTEM,
             messages=[{"role": "user", "content": raw_occupation.strip()}],
         )
         result = json.loads(msg.content[0].text)
         if result.get("ok") is False:
-            return None
-        return result.get("occupation", raw_occupation.strip())
+            return None, None
+        occupation = result.get("occupation", raw_occupation.strip())
+        fal_prompt = result.get("prompt", f"A {occupation}, photorealistic, 8k")
+        # Always append quality boosters
+        fal_prompt += (
+            ", photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, 8k, high detail"
+        )
+        return occupation, fal_prompt
     except Exception:
-        return raw_occupation.strip()
+        occ = raw_occupation.strip()
+        prompt = (
+            f"A person dressed as a {occ}, standing in a fitting environment for a {occ}, "
+            "photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail"
+        )
+        return occ, prompt
 
 
 class handler(BaseHTTPRequestHandler):
@@ -73,20 +97,10 @@ class handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "No image provided"})
             return
 
-        occupation = sanitise(raw_occupation)
+        occupation, prompt = get_occupation_and_prompt(raw_occupation)
         if occupation is None:
             self._json(400, {"error": "blocked"})
             return
-
-        prompt = (
-            f"A person working as a {occupation}, "
-            f"standing in a detailed realistic {occupation} workplace environment, "
-            "relevant props and setting clearly visible in the background, "
-            "half body shot, wearing appropriate professional work attire, "
-            "photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, "
-            "vivid detailed background, 8k, high detail"
-        )
 
         try:
             result = fal_client.run(
