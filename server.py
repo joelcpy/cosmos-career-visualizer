@@ -51,8 +51,9 @@ def get_occupation_and_prompt(raw_occupation: str):
         occ = raw_occupation.strip()
         prompt = (
             f"A person dressed as a {occ}, standing in a fitting environment for a {occ}, "
-            "RAW photo, photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail, live action"
+            "RAW photo, real human being, not cartoon, not animated, not 3d render, "
+            "photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail"
         )
         return occ, prompt
 
@@ -70,16 +71,18 @@ def get_occupation_and_prompt(raw_occupation: str):
         occupation = result.get("occupation", raw_occupation.strip())
         fal_prompt = result.get("prompt", f"A {occupation}, photorealistic, 8k")
         fal_prompt += (
-            ", RAW photo, photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, 8k, high detail, live action"
+            ", RAW photo, real human being, not cartoon, not animated, not 3d render, "
+            "photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, 8k, high detail"
         )
         return occupation, fal_prompt
     except Exception:
         occ = raw_occupation.strip()
         prompt = (
             f"A person dressed as a {occ}, standing in a fitting environment for a {occ}, "
-            "RAW photo, photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail, live action"
+            "RAW photo, real human being, not cartoon, not animated, not 3d render, "
+            "photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail"
         )
         return occ, prompt
 
@@ -135,6 +138,7 @@ def generate():
                 "reference_image_url": f"data:image/jpeg;base64,{image_base64}",
                 "num_inference_steps": 28,
                 "guidance_scale": 6.5,
+                "id_weight": 0.7,
                 "num_images": 1,
             },
         )
