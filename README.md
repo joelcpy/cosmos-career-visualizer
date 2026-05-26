@@ -1,5 +1,7 @@
 # ✨ Career Day — AI Career Visualiser
 
+**Live:** https://cosmos-career-visualizer.vercel.app
+
 > *"What do you want to be when you grow up?"*  
 > Now you can actually **see it** — in seconds.
 
