@@ -131,14 +131,13 @@ def generate():
 
     try:
         result = fal_client.run(
-            "fal-ai/flux-pulid",
+            "fal-ai/instant-id",
             arguments={
                 "prompt": prompt,
                 "negative_prompt": NEGATIVE_PROMPT,
-                "reference_image_url": f"data:image/jpeg;base64,{image_base64}",
-                "num_inference_steps": 28,
-                "guidance_scale": 6.5,
-                "id_weight": 0.7,
+                "face_image_url": f"data:image/jpeg;base64,{image_base64}",
+                "num_inference_steps": 30,
+                "guidance_scale": 7.0,
                 "num_images": 1,
             },
         )
