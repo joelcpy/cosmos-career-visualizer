@@ -34,8 +34,9 @@ or
 NEGATIVE_PROMPT = (
     "plain background, black background, grey background, white background, "
     "studio background, blank background, isolated, cutout, no background, "
-    "cartoon, anime, illustration, drawing, painting, cgi, render, "
-    "unrealistic, fake, doll, plastic skin, smooth skin, "
+    "cartoon, anime, illustration, drawing, painting, cgi, render, 3d render, "
+    "disney, pixar, dreamworks, animated movie, cartoon character, "
+    "unrealistic, fake, doll, plastic skin, smooth skin, airbrushed, "
     "child, kid, young, baby face, "
     "revealing clothing, bikini, swimwear, underwear, lingerie, "
     "low cut, cleavage, nsfw, adult content, suggestive, "
@@ -50,8 +51,8 @@ def get_occupation_and_prompt(raw_occupation: str):
         occ = raw_occupation.strip()
         prompt = (
             f"A person dressed as a {occ}, standing in a fitting environment for a {occ}, "
-            "photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail"
+            "RAW photo, photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail, live action"
         )
         return occ, prompt
 
@@ -69,16 +70,16 @@ def get_occupation_and_prompt(raw_occupation: str):
         occupation = result.get("occupation", raw_occupation.strip())
         fal_prompt = result.get("prompt", f"A {occupation}, photorealistic, 8k")
         fal_prompt += (
-            ", photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, 8k, high detail"
+            ", RAW photo, photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, 8k, high detail, live action"
         )
         return occupation, fal_prompt
     except Exception:
         occ = raw_occupation.strip()
         prompt = (
             f"A person dressed as a {occ}, standing in a fitting environment for a {occ}, "
-            "photorealistic, hyperrealistic face, sharp facial features, "
-            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail"
+            "RAW photo, photorealistic, hyperrealistic face, sharp facial features, "
+            "true-to-life skin texture, natural cinematic lighting, vivid detailed background, 8k, high detail, live action"
         )
         return occ, prompt
 
@@ -132,8 +133,8 @@ def generate():
                 "prompt": prompt,
                 "negative_prompt": NEGATIVE_PROMPT,
                 "reference_image_url": f"data:image/jpeg;base64,{image_base64}",
-                "num_inference_steps": 20,
-                "guidance_scale": 4.0,
+                "num_inference_steps": 28,
+                "guidance_scale": 6.5,
                 "num_images": 1,
             },
         )
