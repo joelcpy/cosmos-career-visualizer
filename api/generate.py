@@ -108,13 +108,14 @@ class handler(BaseHTTPRequestHandler):
 
         try:
             result = fal_client.run(
-                "fal-ai/instant-id",
+                "fal-ai/flux-pulid",
                 arguments={
                     "prompt": prompt,
                     "negative_prompt": NEGATIVE_PROMPT,
-                    "face_image_url": f"data:image/jpeg;base64,{image_base64}",
-                    "num_inference_steps": 30,
-                    "guidance_scale": 7.0,
+                    "reference_image_url": f"data:image/jpeg;base64,{image_base64}",
+                    "num_inference_steps": 28,
+                    "guidance_scale": 6.5,
+                    "id_weight": 0.7,
                     "num_images": 1,
                 },
             )
