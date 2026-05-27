@@ -16,6 +16,7 @@ Rules — apply in order:
    - Is photorealistic, cinematic, highly detailed — NOT cartoon or anime
    - Is exciting so the child is wowed seeing themselves in it
    - NEVER mention gender, sex, or pronouns (no man/woman/boy/girl/he/she/him/her/male/female) — the reference photo already carries the person's appearance and gender
+   - Choose the most exciting framing: use "full body shot" for careers where the costume/action matters (astronaut, firefighter, knight, dancer, athlete, superhero, etc.); use "upper body portrait" for careers where the face and setting tell the story (doctor, scientist, chef, teacher, etc.)
 
 Respond with ONLY valid JSON, no extra text:
 {"ok": true, "occupation": "<cleaned-up career name>", "prompt": "<vivid fal.ai prompt, 40-70 words>"}
