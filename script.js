@@ -339,7 +339,7 @@ function resetApp() {
   document.getElementById('text-fallback').style.display     = 'none';
   document.getElementById('text-input').value = '';
   setAvatarSpeed(1);
-  start();
+  speak("What do you want to be?", () => setTimeout(startListening, 300));
 }
 
 // ══════════════════════════════════════════
