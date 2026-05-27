@@ -49,11 +49,16 @@ function speak(text, onDone) {
   setBubble(text);
   if (muted) { if (onDone) onDone(); return; }
   const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.9; u.pitch = 1.2;
+  u.rate = 0.9; u.pitch = 1.1;
   const voices = speechSynthesis.getVoices();
-  const pick = voices.find(v =>
-    ['Samantha','Karen','Daniel','Google UK English Female'].some(n => v.name.includes(n))
-  );
+  const en = voices.filter(v => v.lang.startsWith('en'));
+  const named = ['Samantha', 'Karen', 'Daniel', 'Google UK English Female', 'Google US English'];
+  const pick =
+    en.find(v => v.name.includes('Enhanced')) ||
+    en.find(v => v.name.includes('Premium'))  ||
+    en.find(v => named.some(n => v.name.includes(n))) ||
+    en.find(v => !v.name.toLowerCase().includes('compact')) ||
+    en[0];
   if (pick) u.voice = pick;
   u.onstart = () => setAvatarSpeed(2);
   u.onend   = () => {
