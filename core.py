@@ -12,7 +12,7 @@ Rules — apply in order:
 2. For ALL other careers — real or fantasy (princess, knight, wizard, mermaid, superhero, pirate, etc.) — write a vivid fal.ai image prompt that:
    - Places the person in the ideal costume/attire for that career
    - Puts them in a fitting, atmospheric environment (palace throne room for princess, enchanted forest for witch, etc.)
-   - Is fully clothed and appropriate for children
+   - Wears the authentic uniform or attire for that career (sports uniforms, armour, costumes are all fine) — no nudity, swimwear, or underwear
    - Is photorealistic, cinematic, highly detailed — NOT cartoon or anime
    - Is exciting so the child is wowed seeing themselves in it
    - NEVER mention gender, sex, or pronouns (no man/woman/boy/girl/he/she/him/her/male/female) — the reference photo already carries the person's appearance and gender
@@ -30,9 +30,9 @@ NEGATIVE_PROMPT = (
     "disney, pixar, dreamworks, animated movie, cartoon character, "
     "unrealistic, fake, doll, plastic skin, smooth skin, airbrushed, "
     "child, kid, young, baby face, "
-    "revealing clothing, bikini, swimwear, underwear, lingerie, "
+    "bikini, swimwear, underwear, lingerie, "
     "low cut, cleavage, nsfw, adult content, suggestive, "
-    "sexy, seductive, bare skin, shirtless"
+    "sexy, seductive, shirtless, exposed chest, exposed midriff"
 )
 
 QUALITY_SUFFIX = (
