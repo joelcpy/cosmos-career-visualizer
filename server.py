@@ -51,8 +51,8 @@ def generate():
         return jsonify({"error": "No image provided"}), 400
 
     try:
-        image_url, _ = generate_image(image_base64, raw_occupation)
-        return jsonify({"image_url": image_url})
+        image_url, occupation = generate_image(image_base64, raw_occupation)
+        return jsonify({"image_url": image_url, "occupation": occupation})
     except ValueError:
         return jsonify({"error": "blocked"}), 400
     except Exception as e:

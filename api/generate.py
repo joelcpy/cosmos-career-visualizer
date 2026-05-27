@@ -30,8 +30,8 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            image_url, _ = generate_image(image_base64, raw_occupation)
-            self._json(200, {"image_url": image_url})
+            image_url, occupation = generate_image(image_base64, raw_occupation)
+            self._json(200, {"image_url": image_url, "occupation": occupation})
         except ValueError:
             self._json(400, {"error": "blocked"})
         except Exception as e:

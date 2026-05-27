@@ -41,6 +41,7 @@ def test_generate_success(client):
         })
     assert res.status_code == 200
     assert res.get_json()["image_url"] == "https://example.com/img.jpg"
+    assert res.get_json()["occupation"] == "Chef"
 
 
 def test_generate_fal_error(client):

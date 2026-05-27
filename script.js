@@ -82,6 +82,9 @@ function extractOccupation(text) {
   return text.toLowerCase()
     .replace(/i (want|would like|plan) to (be|become) (an? )?/gi, '')
     .replace(/i('m| am) going to be (an? )?/gi, '')
+    .replace(/^(be|become) (an? )?/gi, '')
+    .replace(/^(a|an) (good|great|amazing|fantastic|wonderful|brilliant|successful|bad|nice) /gi, '')
+    .replace(/^(good|great|amazing|fantastic|wonderful|brilliant|successful) /gi, '')
     .replace(/^(a|an) /i, '').trim();
 }
 
@@ -257,7 +260,11 @@ function spawnSparkle() {
 // MAIN FLOW
 // ══════════════════════════════════════════
 async function handleOccupation(occupation) {
-  if (!occupation) { speak("Didn't catch that — try again!", () => startListening()); return; }
+  if (!occupation) {
+    speak("Didn't catch that — type your dream career in the box below!");
+    document.getElementById('text-fallback').style.display = 'block';
+    return;
+  }
 
   speak(`A ${occupation}? Brilliant! Get ready for your photo!`);
   await delay(1800);
@@ -294,7 +301,7 @@ async function handleOccupation(occupation) {
 
   // Pre-load image so we never flash the old/empty image
   const img = new Image();
-  img.onload  = () => showResult(data.image_url, occupation);
+  img.onload  = () => showResult(data.image_url, data.occupation || occupation);
   img.onerror = () => { stopSpellCasting(); speak("Couldn't load result. Let's try again!", () => resetApp()); };
   img.src = data.image_url;
 }
