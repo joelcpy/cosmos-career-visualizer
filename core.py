@@ -15,6 +15,7 @@ Rules — apply in order:
    - Is fully clothed and appropriate for children
    - Is photorealistic, cinematic, highly detailed — NOT cartoon or anime
    - Is exciting so the child is wowed seeing themselves in it
+   - NEVER mention gender, sex, or pronouns (no man/woman/boy/girl/he/she/him/her/male/female) — the reference photo already carries the person's appearance and gender
 
 Respond with ONLY valid JSON, no extra text:
 {"ok": true, "occupation": "<cleaned-up career name>", "prompt": "<vivid fal.ai prompt, 40-70 words>"}
