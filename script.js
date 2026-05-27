@@ -124,8 +124,10 @@ function startListening() {
   recognition.onerror = () => {
     clearTimeout(listenTimeout);
     hideMic();
-    document.getElementById('text-fallback').style.display = 'block';
-    setBubble("Mic didn't catch that — type below!");
+    if (!gotResult) {
+      document.getElementById('text-fallback').style.display = 'block';
+      setBubble("Mic didn't catch that — type below!");
+    }
   };
   recognition.onend = () => {
     clearTimeout(listenTimeout);
